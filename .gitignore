@@ -1,0 +1,19 @@
+.playwright-mcp
+# Python
+__pycache__/
+*.pyc
+
+# Runtime config (contains password hash)
+config.json
+
+# Dev artifacts
+guardian-portal-plan.md
+static/test.html
+images/
+new_images/
+*.png
+!static/*.png
+
+
+*~
+CLAUDE.md

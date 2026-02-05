@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Guardian Portal</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        :root {
+            --pico-primary: #0088cc;
+            --g-blue: #0088cc;
+            --g-blue-dim: #006aa3;
+            --g-blue-glow: rgba(0, 136, 204, 0.15);
+            --g-blue-glow-strong: rgba(0, 136, 204, 0.25);
+            --g-orange: #e07020;
+            --g-orange-dim: rgba(224, 112, 32, 0.15);
+            --g-warning: #d4a000;
+            --g-radius: 10px;
+            --g-radius-sm: 6px;
+        }
+
+        /* Dark theme overrides */
+        [data-theme="dark"] {
+            --g-surface: #1a1d23;
+            --g-surface-raised: #22262e;
+            --g-surface-overlay: #2a2f38;
+            --g-border: #2e3440;
+            --g-border-subtle: #252930;
+            --g-text: #d8dee9;
+            --g-text-dim: #8892a0;
+            --g-text-dimmer: #5c6370;
+            --g-bg: #13161b;
+            --g-header-bg: linear-gradient(135deg, #1a2332 0%, #1e2a3a 100%);
+            --g-header-border: rgba(0, 136, 204, 0.3);
+            --g-input-bg: #1a1d23;
+            --g-card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            --g-login-bg: radial-gradient(ellipse at 50% 30%, rgba(0, 136, 204, 0.08) 0%, transparent 60%);
+            /* Override Pico CSS variables for dark */
+            --pico-background-color: #13161b;
+            --pico-card-background-color: #1a1d23;
+            --pico-card-sectioning-background-color: #22262e;
+            --pico-border-color: #2e3440;
+            --pico-muted-border-color: #252930;
+            --pico-color: #d8dee9;
+            --pico-muted-color: #8892a0;
+            --pico-muted-background-color: #22262e;
+            --pico-form-element-background-color: #1a1d23;
+            --pico-form-element-border-color: #2e3440;
+            --pico-form-element-focus-color: #0088cc;
+            --pico-secondary-background: #2a2f38;
+            --pico-secondary-border: #2e3440;
+            --pico-table-border-color: #2e3440;
+            color-scheme: dark;
+        }
+
+        /* Light theme overrides */
+        [data-theme="light"] {
+            --g-surface: #ffffff;
+            --g-surface-raised: #f8f9fb;
+            --g-surface-overlay: #f0f2f5;
+            --g-border: #e0e4e8;
+            --g-border-subtle: #ebeef2;
+            --g-text: #2c3e50;
+            --g-text-dim: #6b7b8d;
+            --g-text-dimmer: #9ba8b5;
+            --g-bg: #f4f5f7;
+            --g-header-bg: linear-gradient(135deg, #0077b6 0%, #0088cc 100%);
+            --g-header-border: rgba(0, 136, 204, 0.2);
+            --g-input-bg: #ffffff;
+            --g-card-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            --g-login-bg: radial-gradient(ellipse at 50% 30%, rgba(0, 136, 204, 0.06) 0%, transparent 60%);
+            /* Override Pico CSS variables for light */
+            --pico-background-color: #f4f5f7;
+            --pico-card-background-color: #ffffff;
+            --pico-card-sectioning-background-color: #f8f9fb;
+            --pico-border-color: #e0e4e8;
+            --pico-muted-border-color: #ebeef2;
+            --pico-color: #2c3e50;
+            --pico-muted-color: #6b7b8d;
+            --pico-muted-background-color: #f0f2f5;
+            --pico-form-element-background-color: #ffffff;
+            --pico-form-element-border-color: #e0e4e8;
+            --pico-form-element-focus-color: #0088cc;
+            color-scheme: light;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            padding-top: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: var(--g-bg);
+        }
+
+        /* ─── Header ─── */
+        header {
+            background: var(--g-header-bg);
+            border-bottom: 1px solid var(--g-header-border);
+            padding: 0.6rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--g-blue);
+            letter-spacing: -0.01em;
+        }
+
+        [data-theme="light"] header h1 {
+            color: white;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .header-btn {
+            background: transparent;
+            border: 1px solid var(--g-border);
+            color: var(--g-text-dim);
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: var(--g-radius-sm);
+            cursor: pointer;
+            transition: all 0.15s;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        [data-theme="light"] .header-btn {
+            border-color: rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.85);
+        }
+
+        .header-btn:hover {
+            background: var(--g-surface-overlay);
+            color: var(--g-text);
+        }
+
+        [data-theme="light"] .header-btn:hover {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        .theme-toggle {
+            font-size: 1rem;
+            padding: 0.2rem 0.4rem;
+            line-height: 1;
+        }
+
+        /* ─── Tabs ─── */
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--g-border);
+            margin-bottom: 1rem;
+            position: sticky;
+            top: 45px;
+            background: var(--g-bg);
+            z-index: 50;
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.7rem 0.5rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+            font-size: 0.82rem;
+            transition: all 0.15s;
+            color: var(--g-text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            letter-spacing: 0.01em;
+        }
+
+        .tab-btn:hover {
+            color: var(--g-text);
+            background: var(--g-blue-glow);
+        }
+
+        .tab-btn.active {
+            border-bottom-color: var(--g-blue);
+            color: var(--g-blue);
+        }
+
+        .tab-icon {
+            font-size: 0.95rem;
+            line-height: 1;
+        }
+
+        /* ─── Content ─── */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.15s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(3px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        main.container {
+            max-width: 720px;
+            padding: 0 1rem 2rem;
+        }
+
+        /* ─── Cards ─── */
+        .status-card {
+            background: var(--g-surface);
+            border-radius: var(--g-radius);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid var(--g-border);
+            box-shadow: var(--g-card-shadow);
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .status-header h3 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--g-text);
+            letter-spacing: -0.01em;
+        }
+
+        /* ─── Status Badges ─── */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.15rem 0.55rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .status-indicator.active {
+            background: var(--g-blue-glow);
+            color: var(--g-blue);
+        }
+
+        .status-indicator.inactive {
+            background: var(--g-orange-dim);
+            color: var(--g-orange);
+        }
+
+        .status-indicator::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-indicator.active::before {
+            box-shadow: 0 0 6px currentColor;
+        }
+
+        /* ─── Stat Grid ─── */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        @media (min-width: 480px) {
+            .stat-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .stat-grid.five-cols {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 0.5rem 0.25rem;
+            background: var(--g-surface-raised);
+            border-radius: var(--g-radius-sm);
+            border: 1px solid var(--g-border-subtle);
+        }
+
+        .stat-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--g-blue);
+            font-variant-numeric: tabular-nums;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .stat-label {
+            font-size: 0.6rem;
+            color: var(--g-text-dimmer);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 0.15rem;
+        }
+
+        /* ─── Info Rows ─── */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.45rem 0;
+            border-bottom: 1px solid var(--g-border-subtle);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--g-text-dim);
+            font-size: 0.82rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--g-text);
+        }
+
+        /* ─── Client List ─── */
+        .client-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .client-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--g-border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .client-list li:last-child {
+            border-bottom: none;
+        }
+
+        .client-mac {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 0.75rem;
+            background: var(--g-surface-raised);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            color: var(--g-text);
+        }
+
+        .client-signal {
+            color: var(--g-text-dim);
+            font-size: 0.75rem;
+        }
+
+        /* ─── Buttons ─── */
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-group button {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        button[aria-busy="true"] {
+            pointer-events: none;
+        }
+
+        .btn-sm {
+            padding: 0.3rem 0.6rem !important;
+            font-size: 0.75rem !important;
+            margin: 0 !important;
+            border-radius: var(--g-radius-sm) !important;
+        }
+
+        /* ─── Accordion / Details ─── */
+        details {
+            margin-bottom: 0.5rem;
+        }
+
+        details summary {
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            padding: 0.7rem 0.85rem;
+            background: var(--g-surface);
+            border: 1px solid var(--g-border);
+            border-radius: var(--g-radius);
+            color: var(--g-text);
+            transition: all 0.15s;
+        }
+
+        details summary:hover {
+            background: var(--g-surface-raised);
+        }
+
+        details[open] summary {
+            border-radius: var(--g-radius) var(--g-radius) 0 0;
+            border-bottom-color: transparent;
+        }
+
+        details > *:not(summary) {
+            padding: 0.85rem;
+            background: var(--g-surface);
+            border: 1px solid var(--g-border);
+            border-top: none;
+            border-radius: 0 0 var(--g-radius) var(--g-radius);
+        }
+
+        /* ─── Danger Zone ─── */
+        .danger-zone summary {
+            border-color: rgba(224, 112, 32, 0.3);
+            background: rgba(224, 112, 32, 0.05);
+            color: var(--g-orange);
+        }
+
+        .danger-zone summary:hover {
+            background: rgba(224, 112, 32, 0.08);
+        }
+
+        .danger-zone > *:not(summary) {
+            border-color: rgba(224, 112, 32, 0.3);
+        }
+
+        /* ─── Log Output ─── */
+        .log-output {
+            background: #0d1117;
+            color: #7ee787;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 0.65rem;
+            padding: 0.65rem;
+            border-radius: var(--g-radius-sm);
+            max-height: 220px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.5;
+            border: 1px solid #21262d;
+        }
+
+        /* ─── Key Display ─── */
+        .key-display {
+            background: var(--g-surface-raised);
+            border: 1px solid var(--g-border);
+            padding: 0.6rem;
+            border-radius: var(--g-radius-sm);
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 0.7rem;
+            word-break: break-all;
+            margin: 0.5rem 0;
+            user-select: all;
+            color: var(--g-text);
+        }
+
+        /* ─── Network Buttons ─── */
+        .network-btn {
+            width: 100%;
+            margin-bottom: 0.4rem;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0.85rem;
+        }
+
+        .network-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .network-ssid {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .network-meta {
+            font-size: 0.7rem;
+            color: var(--g-text-dim);
+        }
+
+        .network-signal {
+            font-weight: 600;
+            color: var(--g-blue);
+            font-size: 0.85rem;
+        }
+
+        /* ─── Help Hints ─── */
+        .help-hint {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--g-surface-overlay);
+            color: var(--g-text-dimmer);
+            font-size: 0.6rem;
+            font-weight: 700;
+            cursor: help;
+            vertical-align: middle;
+            position: relative;
+            border: 1px solid var(--g-border);
+        }
+
+        .help-hint:active::after,
+        .help-hint:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--g-surface);
+            border: 1px solid var(--g-border);
+            color: var(--g-text);
+            padding: 0.5rem 0.65rem;
+            border-radius: var(--g-radius-sm);
+            font-size: 0.75rem;
+            font-weight: 400;
+            line-height: 1.4;
+            width: max-content;
+            max-width: 240px;
+            z-index: 200;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+            white-space: normal;
+        }
+
+        /* ─── Login Screen ─── */
+        #login-screen {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 2rem 1.25rem;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-brand {
+            text-align: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .login-brand .brand-icon {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 0.5rem;
+            display: block;
+        }
+
+        .login-brand h2 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--g-blue);
+            letter-spacing: -0.02em;
+        }
+
+        .login-card {
+            background: var(--g-surface);
+            border: 1px solid var(--g-border);
+            border-radius: var(--g-radius);
+            padding: 1.25rem;
+            box-shadow: var(--g-card-shadow);
+        }
+
+        .login-card input {
+            background: var(--g-input-bg);
+            margin-bottom: 0.75rem;
+        }
+
+        .login-card button[type="submit"] {
+            width: 100%;
+            margin-top: 0.25rem;
+        }
+
+        /* ─── Pre-Auth Status Panel ─── */
+        .preauth-panel {
+            background: var(--g-surface);
+            border: 1px solid var(--g-border);
+            border-radius: var(--g-radius);
+            padding: 0.85rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--g-card-shadow);
+        }
+
+        .preauth-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.35rem 0;
+            border-bottom: 1px solid var(--g-border-subtle);
+        }
+
+        .preauth-row:last-child {
+            border-bottom: none;
+        }
+
+        .preauth-label {
+            font-size: 0.78rem;
+            color: var(--g-text-dim);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .preauth-value {
+            font-size: 0.78rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .preauth-value .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .preauth-value .dot.ok {
+            background: var(--g-blue);
+            box-shadow: 0 0 5px var(--g-blue);
+        }
+
+        .preauth-value .dot.warn {
+            background: var(--g-orange);
+            box-shadow: 0 0 5px var(--g-orange);
+        }
+
+        .preauth-value.ok { color: var(--g-blue); }
+        .preauth-value.warn { color: var(--g-orange); }
+
+        /* ─── Toast ─── */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.65rem 1.1rem;
+            border-radius: var(--g-radius);
+            color: white;
+            z-index: 1000;
+            animation: toastIn 0.3s ease;
+            font-size: 0.85rem;
+            max-width: calc(100vw - 2rem);
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            font-weight: 500;
+        }
+
+        .toast.success { background: var(--g-blue-dim); }
+        .toast.error { background: var(--g-orange); }
+
+        @keyframes toastIn {
+            from { transform: translate(-50%, 100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        /* ─── Last Updated ─── */
+        .last-updated {
+            font-size: 0.65rem;
+            color: var(--g-text-dimmer);
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+
+        /* ─── Section Labels ─── */
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--g-text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin: 1rem 0 0.5rem;
+        }
+
+        /* ─── Login Status Bar ─── */
+        .login-status {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .login-status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.72rem;
+            color: var(--g-text-dim);
+        }
+
+        .login-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--g-text-dimmer);
+            flex-shrink: 0;
+        }
+
+        .login-status-dot.ok {
+            background: var(--g-blue);
+            box-shadow: 0 0 5px var(--g-blue);
+        }
+
+        .login-status-dot.warn {
+            background: var(--g-orange);
+        }
+
+        /* ─── Mascot Footer ─── */
+        .mascot-footer {
+            text-align: center;
+            padding: 2rem 0 2rem;
+            opacity: 0.35;
+            transition: opacity 0.3s;
+        }
+
+        .mascot-footer:hover {
+            opacity: 0.7;
+        }
+
+        .mascot-footer img {
+            width: 48px;
+            height: 48px;
+        }
+
+        .mascot-footer p {
+            font-size: 0.65rem;
+            color: var(--g-text-dimmer);
+            margin: 0.25rem 0 0;
+        }
+
+        /* ─── Captive Portal Continue Banner ─── */
+        .captive-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 500;
+            padding: 0.75rem 1rem;
+            background: var(--g-surface);
+            border-top: 1px solid var(--g-border);
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .captive-banner p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--g-text-dim);
+        }
+
+        .captive-banner a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1.25rem;
+            background: var(--g-blue);
+            color: white;
+            border-radius: var(--g-radius);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+
+        .captive-banner a:hover {
+            background: var(--g-blue-dim);
+        }
+
+        .captive-banner .dismiss-btn {
+            background: none;
+            border: none;
+            color: var(--g-text-dimmer);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.25rem;
+            line-height: 1;
+        }
+
+        /* ─── Misc ─── */
+        .hidden { display: none !important; }
+
+        hr.subtle {
+            border: none;
+            border-top: 1px solid var(--g-border-subtle);
+            margin: 0.75rem 0;
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 400px) {
+            .stat-value { font-size: 0.85rem; }
+            main.container { padding: 0 0.65rem 2rem; }
+            .status-card { padding: 0.85rem; }
+            header { padding: 0.5rem 0.75rem; }
+        }
+    </style>
+    <script>
+        // Apply saved theme before paint
+        (function() {
+            const saved = localStorage.getItem('guardian-theme');
+            if (saved) document.documentElement.setAttribute('data-theme', saved);
+        })();
+    </script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <div class="login-brand">
+            <img class="brand-icon" src="/static/login-logo.png" alt="Guardian" width="52" height="52">
+            <h2>Guardian</h2>
+        </div>
+
+        <div class="preauth-panel" id="preauth-panel">
+            <div class="preauth-row">
+                <span class="preauth-label">VPN</span>
+                <span class="preauth-value" id="pa-vpn">--</span>
+            </div>
+            <div class="preauth-row">
+                <span class="preauth-label">Internet Uplink</span>
+                <span class="preauth-value" id="pa-uplink">--</span>
+            </div>
+            <div class="preauth-row">
+                <span class="preauth-label">Access Point</span>
+                <span class="preauth-value" id="pa-ap">--</span>
+            </div>
+            <div class="preauth-row">
+                <span class="preauth-label">System</span>
+                <span class="preauth-value" id="pa-sys">--</span>
+            </div>
+        </div>
+
+        <div id="setup-password" class="hidden">
+            <div class="login-card">
+                <p style="color: var(--g-text-dim); font-size: 0.85rem; margin: 0 0 1rem; text-align: center;">Set a password to secure your portal.</p>
+                <form id="setup-form">
+                    <input type="password" id="setup-password-input" placeholder="Choose a password (min 8 chars)" required minlength="8" autocomplete="new-password">
+                    <input type="password" id="setup-password-confirm" placeholder="Confirm password" required autocomplete="new-password">
+                    <button type="submit">Set Password</button>
+                </form>
+            </div>
+        </div>
+        <div id="login-form-container">
+            <div class="login-card">
+                <form id="login-form">
+                    <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+            <p style="text-align: center; margin: 0.75rem 0 0; font-size: 0.7rem; color: var(--g-text-dimmer);">Login to access configuration</p>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="hidden">
+        <header>
+            <div class="header-inner">
+                <h1>
+                    <img src="/static/logo.png" alt="" width="28" height="28" style="border-radius: 4px;">
+                    Guardian
+                </h1>
+                <div class="header-actions">
+                    <button id="theme-toggle-btn" class="header-btn theme-toggle" title="Toggle theme"></button>
+                    <button id="logout-btn" class="header-btn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="container">
+            <div class="tabs" role="tablist">
+                <button class="tab-btn active" data-tab="vpn" role="tab"><span class="tab-icon">&#x1F512;</span> VPN</button>
+                <button class="tab-btn" data-tab="wifi" role="tab"><span class="tab-icon">&#x1F4F6;</span> WiFi</button>
+                <button class="tab-btn" data-tab="system" role="tab"><span class="tab-icon">&#x2699;&#xFE0F;</span> System</button>
+            </div>
+
+            <!-- VPN Tab -->
+            <div id="vpn-tab" class="tab-content active" role="tabpanel">
+                <div class="status-card">
+                    <div class="status-header">
+                        <h3>WireGuard <span class="help-hint" title="WireGuard VPN tunnel encrypts all traffic from connected devices through your VPN server">?</span></h3>
+                        <span id="vpn-status-badge" class="status-indicator inactive">Checking...</span>
+                    </div>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="vpn-public-ip">-</div>
+                            <div class="stat-label">Public IP</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="vpn-handshake">-</div>
+                            <div class="stat-label">Handshake</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="vpn-rx">-</div>
+                            <div class="stat-label">Down</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="vpn-tx">-</div>
+                            <div class="stat-label">Up</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 0.75rem;">
+                        <button id="vpn-refresh-btn" class="outline btn-sm" style="width: 100%;">Refresh</button>
+                    </div>
+                    <div class="last-updated" id="vpn-updated"></div>
+                </div>
+
+                <details>
+                    <summary>WireGuard Config</summary>
+                    <form id="vpn-config-form">
+                        <label>
+                            <span style="font-size: 0.85rem;">Server Public Key <span class="help-hint" title="The public key of your WireGuard server. Get this from your VPN provider or server config.">?</span></span>
+                            <input type="text" id="vpn-peer-key" placeholder="Base64 public key" spellcheck="false" autocomplete="off" style="font-family: 'SF Mono', Monaco, monospace; font-size: 0.8rem;">
+                        </label>
+                        <label>
+                            <span style="font-size: 0.85rem;">Endpoint <span class="help-hint" title="Server address and port, e.g. vpn.example.com:51820">?</span></span>
+                            <input type="text" id="vpn-endpoint" placeholder="vpn.example.com:51820">
+                        </label>
+                        <label>
+                            <span style="font-size: 0.85rem;">DNS <span class="help-hint" title="DNS servers to use when VPN is active. Comma-separated.">?</span></span>
+                            <input type="text" id="vpn-dns" placeholder="1.1.1.1, 8.8.8.8">
+                        </label>
+                        <button type="submit">Save Config</button>
+                        <small style="color: var(--g-text-dimmer); font-size: 0.75rem;">Restart VPN after saving to apply changes.</small>
+                    </form>
+                </details>
+
+                <details>
+                    <summary>Device Keys</summary>
+                    <div>
+                        <p style="margin-top: 0; color: var(--g-text-dim); font-size: 0.82rem;">Your device's public key. Give this to your WireGuard server admin to authorize this device.</p>
+                        <strong style="font-size: 0.82rem; color: var(--g-text-dim);">This Device's Public Key:</strong>
+                        <div class="key-display" id="local-pubkey">Loading...</div>
+
+                        <hr class="subtle">
+
+                        <details class="danger-zone" style="margin: 0;">
+                            <summary>Regenerate Keypair</summary>
+                            <div>
+                                <p style="margin-top: 0; color: var(--g-text-dim); font-size: 0.82rem;">This creates a new identity for this device. The server will need to be updated with the new public key before the VPN can reconnect.</p>
+                                <div id="new-pubkey-display" class="hidden">
+                                    <strong style="font-size: 0.82rem;">New Public Key:</strong>
+                                    <div class="key-display" id="new-pubkey"></div>
+                                </div>
+                                <button id="regen-keys-btn" class="secondary">Regenerate Keypair</button>
+                            </div>
+                        </details>
+                    </div>
+                </details>
+            </div>
+
+            <!-- WiFi Tab -->
+            <div id="wifi-tab" class="tab-content" role="tabpanel">
+                <div class="status-card">
+                    <div class="status-header">
+                        <h3>Access Point <span class="help-hint" title="The WiFi network this device broadcasts. Clients connect here to get VPN-protected internet.">?</span></h3>
+                        <span id="ap-client-count" class="status-indicator active">0 clients</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">SSID</span>
+                        <span class="info-value" id="ap-ssid">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Channel</span>
+                        <span class="info-value" id="ap-channel">-</span>
+                    </div>
+
+                    <div class="section-label" style="margin-top: 0.75rem;">Connected Clients</div>
+                    <ul class="client-list" id="client-list">
+                        <li style="color: var(--g-text-dim);">No clients connected</li>
+                    </ul>
+                </div>
+
+                <details>
+                    <summary>AP Settings</summary>
+                    <form id="ap-config-form">
+                        <label>
+                            <span style="font-size: 0.85rem;">SSID</span>
+                            <input type="text" id="ap-ssid-input" placeholder="GUARDIAN WIFI" maxlength="32">
+                        </label>
+                        <label>
+                            <span style="font-size: 0.85rem;">Password (min 8 characters)</span>
+                            <input type="password" id="ap-password-input" placeholder="Leave blank to keep current" minlength="8">
+                        </label>
+                        <button type="submit">Update AP</button>
+                    </form>
+                </details>
+
+                <div class="status-card">
+                    <div class="status-header">
+                        <h3>Internet Uplink <span class="help-hint" title="The upstream WiFi network this device connects to for internet access. Traffic flows: Clients → AP → VPN → Uplink → Internet.">?</span></h3>
+                        <span id="uplink-status-badge" class="status-indicator inactive">Checking...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Network</span>
+                        <span class="info-value" id="uplink-ssid">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Signal</span>
+                        <span class="info-value" id="uplink-signal">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">IP Address</span>
+                        <span class="info-value" id="uplink-ip">-</span>
+                    </div>
+                </div>
+
+                <details>
+                    <summary>Change Uplink Network</summary>
+                    <div>
+                        <button id="scan-networks-btn" class="outline" style="width: 100%; margin-bottom: 0.75rem;">Scan Networks</button>
+                        <div id="network-list"></div>
+                        <form id="uplink-connect-form" class="hidden" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--g-border-subtle);">
+                            <input type="hidden" id="uplink-ssid-input">
+                            <p style="margin: 0 0 0.65rem; font-size: 0.88rem;"><strong>Connecting to:</strong> <span id="uplink-ssid-display"></span></p>
+                            <label>
+                                <span style="font-size: 0.85rem;">Password</span>
+                                <input type="password" id="uplink-password-input" placeholder="Network password">
+                            </label>
+                            <button type="submit">Connect</button>
+                        </form>
+                    </div>
+                </details>
+            </div>
+
+            <!-- System Tab -->
+            <div id="system-tab" class="tab-content" role="tabpanel">
+                <div class="status-card">
+                    <div class="status-header">
+                        <h3>System Status</h3>
+                        <button id="sys-refresh-btn" class="outline btn-sm">Refresh</button>
+                    </div>
+                    <div class="stat-grid five-cols">
+                        <div class="stat-item">
+                            <div class="stat-value" id="sys-uptime">-</div>
+                            <div class="stat-label">Uptime</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="sys-temp">-</div>
+                            <div class="stat-label">CPU Temp</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="sys-memory">-</div>
+                            <div class="stat-label">Memory</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="sys-disk">-</div>
+                            <div class="stat-label">Disk</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="sys-load">-</div>
+                            <div class="stat-label">Load</div>
+                        </div>
+                    </div>
+                    <div class="last-updated" id="sys-updated"></div>
+                </div>
+
+                <details>
+                    <summary>System Logs</summary>
+                    <div>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.65rem;">
+                            <select id="log-service" style="margin: 0; font-size: 0.85rem;">
+                                <option value="guardian-portal">Guardian Portal</option>
+                                <option value="wg-quick@wg0">WireGuard</option>
+                                <option value="hostapd">hostapd</option>
+                                <option value="dnsmasq">dnsmasq</option>
+                            </select>
+                            <button id="view-logs-btn" class="outline btn-sm" style="white-space: nowrap;">View</button>
+                        </div>
+                        <div id="log-output" class="log-output hidden"></div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Change Password</summary>
+                    <form id="change-password-form">
+                        <label>
+                            <span style="font-size: 0.85rem;">New Password</span>
+                            <input type="password" id="new-password" placeholder="Min 8 characters" required minlength="8" autocomplete="new-password">
+                        </label>
+                        <label>
+                            <span style="font-size: 0.85rem;">Confirm Password</span>
+                            <input type="password" id="new-password-confirm" required autocomplete="new-password">
+                        </label>
+                        <button type="submit">Change Password</button>
+                    </form>
+                </details>
+
+                <details class="danger-zone">
+                    <summary>VPN Control</summary>
+                    <div>
+                        <p style="margin-top: 0; color: var(--g-orange); font-weight: 600; font-size: 0.85rem;">Stopping the VPN will block all internet for connected devices.</p>
+                        <p style="color: var(--g-text-dim); font-size: 0.8rem;">A kill switch is active: when WireGuard is down, no traffic is forwarded. This prevents data leaks outside the tunnel.</p>
+                        <div class="btn-group">
+                            <button id="vpn-toggle-btn" class="secondary">Toggle VPN</button>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="danger-zone">
+                    <summary>Power Controls</summary>
+                    <div>
+                        <p style="margin-top: 0; color: var(--g-text-dim); font-size: 0.85rem;">These actions will interrupt your connection.</p>
+                        <div class="btn-group">
+                            <button id="reboot-btn" class="secondary">Reboot</button>
+                            <button id="shutdown-btn" class="secondary">Shutdown</button>
+                        </div>
+                    </div>
+                </details>
+            </div>
+            <div class="mascot-footer">
+                <img src="/static/mascot.png" alt="" draggable="false">
+                <p>Guarded by Guardian</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ─── Theme Toggle ───
+        function getTheme() {
+            return document.documentElement.getAttribute('data-theme') || 'dark';
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('guardian-theme', theme);
+            updateThemeButton();
+        }
+
+        function updateThemeButton() {
+            const btn = document.getElementById('theme-toggle-btn');
+            if (btn) btn.textContent = getTheme() === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+        }
+
+        // ─── API helpers ───
+        async function api(endpoint, options = {}) {
+            const res = await fetch(`/api${endpoint}`, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.detail || 'Request failed');
+            }
+            return data;
+        }
+
+        function toast(message, type = 'success') {
+            document.querySelectorAll('.toast').forEach(t => t.remove());
+            const el = document.createElement('div');
+            el.className = `toast ${type}`;
+            el.textContent = message;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+
+        function formatTime() {
+            return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function setLoading(btn, loading) {
+            btn.setAttribute('aria-busy', loading);
+            btn.disabled = loading;
+        }
+
+        // ─── Auth ───
+        async function checkAuth() {
+            try {
+                const status = await api('/auth/status');
+                if (!status.password_set) {
+                    document.getElementById('login-form-container').classList.add('hidden');
+                    document.getElementById('setup-password').classList.remove('hidden');
+                } else if (status.authenticated) {
+                    showApp();
+                } else {
+                    document.getElementById('login-screen').classList.remove('hidden');
+                    document.getElementById('app').classList.add('hidden');
+                }
+            } catch (e) {
+                console.error('Auth check failed:', e);
+            }
+        }
+
+        let refreshInterval;
+
+        function showApp() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            updateThemeButton();
+            loadAll();
+            refreshInterval = setInterval(loadAll, 30000);
+        }
+
+        function loadAll() {
+            loadVPNStatus();
+            loadVPNConfig();
+            loadSystemStatus();
+            loadAPStatus();
+            loadUplinkStatus();
+        }
+
+        document.getElementById('setup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const pw = document.getElementById('setup-password-input').value;
+            const confirm = document.getElementById('setup-password-confirm').value;
+            if (pw !== confirm) {
+                toast('Passwords do not match', 'error');
+                return;
+            }
+            setLoading(btn, true);
+            try {
+                await api('/auth/set-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ password: pw })
+                });
+                toast('Password set successfully');
+                showApp();
+            } catch (e) {
+                toast(e.message, 'error');
+            } finally {
+                setLoading(btn, false);
+            }
+        });
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            setLoading(btn, true);
+            try {
+                await api('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ password: document.getElementById('login-password').value })
+                });
+                showApp();
+            } catch (e) {
+                toast(e.message, 'error');
+            } finally {
+                setLoading(btn, false);
+            }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            clearInterval(refreshInterval);
+            await api('/auth/logout', { method: 'POST' });
+            location.reload();
+        });
+
+        // ─── Theme ───
+        document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+            setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+        });
+
+        // ─── Tabs ───
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+
+        // ─── VPN ───
+        async function loadVPNStatus() {
+            try {
+                const status = await api('/vpn/status');
+                const badge = document.getElementById('vpn-status-badge');
+                badge.textContent = status.active ? 'Connected' : 'Disconnected';
+                badge.className = `status-indicator ${status.active ? 'active' : 'inactive'}`;
+
+                document.getElementById('vpn-public-ip').textContent = status.public_ip || '-';
+
+                let handshake = status.latest_handshake || '-';
+                if (handshake.includes(',')) handshake = handshake.split(',')[0];
+                document.getElementById('vpn-handshake').textContent = handshake;
+
+                document.getElementById('vpn-rx').textContent = status.transfer?.received?.replace(' ', '') || '-';
+                document.getElementById('vpn-tx').textContent = status.transfer?.sent?.replace(' ', '') || '-';
+                document.getElementById('vpn-updated').textContent = `Updated ${formatTime()}`;
+            } catch (e) {
+                console.error('Failed to load VPN status:', e);
+            }
+        }
+
+        async function loadVPNConfig() {
+            try {
+                const config = await api('/vpn/config');
+                document.getElementById('vpn-endpoint').value = config.endpoint || '';
+                document.getElementById('vpn-dns').value = config.dns || '';
+                document.getElementById('vpn-peer-key').value = config.peer_public_key || '';
+                document.getElementById('local-pubkey').textContent = config.local_public_key || 'Unknown';
+            } catch (e) {
+                // Not logged in yet or config missing
+            }
+        }
+
+        document.getElementById('vpn-toggle-btn').addEventListener('click', async (e) => {
+            const btn = e.target;
+            setLoading(btn, true);
+            try {
+                const result = await api('/vpn/toggle', { method: 'POST' });
+                toast(`VPN ${result.action === 'up' ? 'starting...' : 'stopping...'}`);
+                setTimeout(loadVPNStatus, 3000);
+            } catch (e) {
+                toast(e.message, 'error');
+            } finally {
+                setLoading(btn, false);
+            }
+        });
+
+        document.getElementById('vpn-refresh-btn').addEventListener('click', async (e) => {
+            setLoading(e.target, true);
+            await loadVPNStatus();
+            setLoading(e.target, false);
+        });
+
+        document.getElementById('vpn-config-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            setLoading(btn, true);
+            try {
+                await api('/vpn/config', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        peer_public_key: document.getElementById('vpn-peer-key').value || null,
+                        endpoint: document.getElementById('vpn-endpoint').value || null,
+                        dns: document.getElementById('vpn-dns').value || null
+                    })
+                });
+                toast('Config saved. Restart VPN to apply.');
+            } catch (e) {
+                toast(e.message, 'error');
+            } finally {
+                setLoading(btn, false);
+            }
+        });
+
+        document.getElementById('regen-keys-btn').addEventListener('click', async (e) => {
+            if (!confirm('Generate new keypair? You must update your VPN server with the new public key.')) return;
+            const btn = e.target;
+            setLoading(btn, true);
+            try {
+                const result = await api('/vpn/regen-keys', { method: 'POST' });
+                document.getElementById('new-pubkey').textContent = result.public_key;
+                document.getElementById('new-pubkey-display').classList.remove('hidden');
+                toast('New keypair generated');
+            } catch (e) {
+                toast(e.message, 'error');
+            } finally {
+                setLoading(btn, false);
+            }
+        });
+
+        // ─── WiFi AP ───
+        async function loadAPStatus() {
+            try {
+                const status = await api('/wifi/ap');
+                document.getElementById('ap-ssid').textContent = status.ssid || '-';
+                document.getElementById('ap-ssid-input').value = status.ssid || '';
+                document.getElementById('ap-channel').textContent = status.channel || '-';
+
+                const count = status.client_count || 0;
+                const badge = document.getElementById('ap-client-count');
+                badge.textContent = `${count} client${count !== 1 ? 's' : ''}`;
+                badge.className = `status-indicator ${count > 0 ? 'active' : 'inactive'}`;
+
+                const list = document.getElementById('client-list');
+                if (!status.clients || status.clients.length === 0) {
+                    list.innerHTML = '<li style="color: var(--g-text-dim);">No clients connected</li>';
+                } else {
+                    list.innerHTML = status.clients.map(c =>
+                        `<li><span class="client-mac">${c.mac}</span><span class="client-signal">${c.signal || ''}</span></li>`
+                    ).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load AP status:', e);
+            }
+        }
+
+        document.getElementById('ap-config-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            setLoading(btn, true);
+            try {
+                const ssid = document.getElementById('ap-ssid-input').value;
+                const password = document.getElementById('ap-password-input').value;
+                await api('/wifi/ap', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        ssid: ssid || null,
+                        password: password || null
+                    })
+                });
+                toast('AP updated - clients may need to reconnect');
+                document.getElementById('ap-password-input').value = '';
+                loadAPStatus();
+            } catch (e) {
+                toast(e.message, 'error');
+            } finally {
+                setLoading(btn, false);
+            }
+        });
+
+        // ─── WiFi Uplink ───
+        async function loadUplinkStatus() {
+            try {
+                const status = await api('/wifi/uplink');
+                const badge = document.getElementById('uplink-status-badge');
+                badge.textContent = status.connected ? 'Connected' : 'Disconnected';
+                badge.className = `status-indicator ${status.connected ? 'active' : 'inactive'}`;
+
+                document.getElementById('uplink-ssid').textContent = status.ssid || '-';
+                document.getElementById('uplink-signal').textContent = status.signal_dbm || '-';
+                document.getElementById('uplink-ip').textContent = status.ip_address || '-';
+            } catch (e) {
+                console.error('Failed to load uplink status:', e);
+            }
+        }
+
+        document.getElementById('scan-networks-btn').addEventListener('click', async (e) => {
+            const btn = e.target;
+            setLoading(btn, true);
+            try {
+                const result = await api('/wifi/networks');
+                const list = document.getElementById('network-list');
+
+                const networks = result.networks.filter(n => n.ssid !== 'GUARDIAN WIFI');
+
+                if (networks.length === 0) {
+                    list.innerHTML = '<p style="color: var(--g-text-dim);">No networks found</p>';
+                } else {
+                    list.innerHTML = networks.map(n => {
+                        const signal = n.signal ? n.signal.split(' ')[0] : '-';
+                        return `<button class="outline network-btn" data-ssid="${n.ssid}">
+                            <div class="network-info">
+                                <span class="network-ssid">${n.ssid}</span>
+                                <span class="network-meta">${n.security || 'Open'}</span>
+                            </div>
+                            <span class="network-signal">${signal} dBm</span>
+                        </button>`;
+                    }).join('');
+
+                    list.querySelectorAll('.network-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            document.getElementById('uplink-ssid-input').value = btn.dataset.ssid;
+                            document.getElementById('uplink-ssid-display').textContent = btn.dataset.ssid;
+                            document.getElementById('uplink-connect-form').classList.remove('hidden');
+                            document.getElementById('uplink-password-input').focus();
+                        });
+                    });
+                }
+            } catch (e) {
+                toast(e.message, 'error');
+            } finally {
+                setLoading(btn, false);
+            }
+        });
+
+        document.getElementById('uplink-connect-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            setLoading(btn, true);
+            try {
+                const ssid = document.getElementById('uplink-ssid-input').value;
+                const password = document.getElementById('uplink-password-input').value;
+                await api(`/wifi/uplink/connect?ssid=${encodeURIComponent(ssid)}&password=${encodeURIComponent(password)}`, {
+                    method: 'POST'
+                });
+                toast('Connecting to network...');
+                document.getElementById('uplink-connect-form').classList.add('hidden');
+                document.getElementById('uplink-password-input').value = '';
+                setTimeout(loadUplinkStatus, 5000);
+            } catch (e) {
+                toast(e.message, 'error');
+            } finally {
+                setLoading(btn, false);
+            }
+        });
+
+        // ─── System ───
+        async function loadSystemStatus() {
+            try {
+                const status = await api('/status');
+
+                let uptime = status.uptime.replace('up ', '');
+                if (uptime.includes(',')) uptime = uptime.split(',')[0];
+                document.getElementById('sys-uptime').textContent = uptime;
+
+                document.getElementById('sys-temp').textContent = status.cpu_temp_c ? `${status.cpu_temp_c}\u00B0` : '-';
+
+                const memPercent = Math.round((status.memory.used_mb / status.memory.total_mb) * 100);
+                document.getElementById('sys-memory').textContent = `${memPercent}%`;
+
+                document.getElementById('sys-disk').textContent = status.disk.percent;
+                document.getElementById('sys-load').textContent = status.load_avg[0];
+                document.getElementById('sys-updated').textContent = `Updated ${formatTime()}`;
+            } catch (e) {
+                console.error('Failed to load system status:', e);
+            }
+        }
+
+        document.getElementById('sys-refresh-btn').addEventListener('click', async (e) => {
+            setLoading(e.target, true);
+            await loadSystemStatus();
+            setLoading(e.target, false);
+        });
+
+        document.getElementById('view-logs-btn').addEventListener('click', async (e) => {
+            const btn = e.target;
+            setLoading(btn, true);
+            try {
+                const service = document.getElementById('log-service').value;
+                const result = await api(`/logs?service=${service}&lines=100`);
+                const output = document.getElementById('log-output');
+                output.textContent = result.lines.join('\n');
+                output.classList.remove('hidden');
+                output.scrollTop = output.scrollHeight;
+            } catch (e) {
+                toast(e.message, 'error');
+            } finally {
+                setLoading(btn, false);
+            }
+        });
+
+        document.getElementById('reboot-btn').addEventListener('click', async (e) => {
+            if (!confirm('Reboot the device? This will disconnect all clients.')) return;
+            setLoading(e.target, true);
+            try {
+                await api('/system/reboot', { method: 'POST' });
+                toast('Rebooting...');
+            } catch (e) {
+                toast(e.message, 'error');
+                setLoading(e.target, false);
+            }
+        });
+
+        document.getElementById('shutdown-btn').addEventListener('click', async (e) => {
+            if (!confirm('Shutdown the device? You will need physical access to turn it back on.')) return;
+            setLoading(e.target, true);
+            try {
+                await api('/system/shutdown', { method: 'POST' });
+                toast('Shutting down...');
+            } catch (e) {
+                toast(e.message, 'error');
+                setLoading(e.target, false);
+            }
+        });
+
+        document.getElementById('change-password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const pw = document.getElementById('new-password').value;
+            const confirm = document.getElementById('new-password-confirm').value;
+            if (pw !== confirm) {
+                toast('Passwords do not match', 'error');
+                return;
+            }
+            setLoading(btn, true);
+            try {
+                await api('/auth/set-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ password: pw })
+                });
+                toast('Password changed');
+                document.getElementById('change-password-form').reset();
+            } catch (e) {
+                toast(e.message, 'error');
+            } finally {
+                setLoading(btn, false);
+            }
+        });
+
+        // ─── Captive Portal Continue ───
+        // When accessed via the AP (192.168.50.1), show a "Continue" button
+        // that opens an external URL to tell the OS the portal is done
+        function showCaptiveBanner() {
+            const isAP = location.hostname === '192.168.50.1';
+            const dismissed = sessionStorage.getItem('captive-dismissed');
+            if (!isAP || dismissed) return;
+
+            const banner = document.createElement('div');
+            banner.className = 'captive-banner';
+            banner.id = 'captive-banner';
+            banner.innerHTML = `
+                <p>Connected to Guardian WiFi</p>
+                <a href="https://duck.com/?q=whats+my+ip">Continue to Internet &rarr;</a>
+                <button class="dismiss-btn" title="Dismiss">&times;</button>
+            `;
+            document.body.appendChild(banner);
+
+            banner.querySelector('.dismiss-btn').addEventListener('click', () => {
+                banner.remove();
+                sessionStorage.setItem('captive-dismissed', '1');
+            });
+        }
+
+        // ─── Login Status (pre-auth) ───
+        async function loadLoginStatus() {
+            try {
+                const [vpn, uplink, ap] = await Promise.all([
+                    api('/vpn/status').catch(() => null),
+                    api('/wifi/uplink').catch(() => null),
+                    api('/wifi/ap').catch(() => null)
+                ]);
+
+                if (vpn) {
+                    document.getElementById('ls-vpn').className = `login-status-dot ${vpn.active ? 'ok' : 'warn'}`;
+                    document.getElementById('ls-vpn-text').textContent = vpn.active ? 'VPN Connected' : 'VPN Down';
+                }
+                if (uplink) {
+                    document.getElementById('ls-uplink').className = `login-status-dot ${uplink.connected ? 'ok' : 'warn'}`;
+                    document.getElementById('ls-uplink-text').textContent = uplink.connected ? `Uplink: ${uplink.ssid || 'Connected'}` : 'Uplink Down';
+                }
+                if (ap) {
+                    const count = ap.client_count || 0;
+                    document.getElementById('ls-ap').className = 'login-status-dot ok';
+                    document.getElementById('ls-ap-text').textContent = `AP: ${count} client${count !== 1 ? 's' : ''}`;
+                }
+            } catch (e) {
+                // Silently fail
+            }
+        }
+
+        // ─── Init ───
+        updateThemeButton();
+        checkAuth();
+        loadLoginStatus();
+        showCaptiveBanner();
+    </script>
+</body>
+</html>
