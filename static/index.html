@@ -728,40 +728,6 @@
             margin: 1rem 0 0.5rem;
         }
 
-        /* ─── Login Status Bar ─── */
-        .login-status {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .login-status-item {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            font-size: 0.72rem;
-            color: var(--g-text-dim);
-        }
-
-        .login-status-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: var(--g-text-dimmer);
-            flex-shrink: 0;
-        }
-
-        .login-status-dot.ok {
-            background: var(--g-blue);
-            box-shadow: 0 0 5px var(--g-blue);
-        }
-
-        .login-status-dot.warn {
-            background: var(--g-orange);
-        }
-
         /* ─── Mascot Footer ─── */
         .mascot-footer {
             text-align: center;
@@ -1163,6 +1129,19 @@
                             <button id="reboot-btn" class="secondary">Reboot</button>
                             <button id="shutdown-btn" class="secondary">Shutdown</button>
                         </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>About</summary>
+                    <div style="text-align: center;">
+                        <img src="/static/mascot.png" alt="Guardian mascot" width="48" height="48" style="margin-bottom: 0.5rem; opacity: 0.7;">
+                        <p style="margin: 0 0 0.25rem; font-weight: 600; color: var(--g-text);">Guardian Portal</p>
+                        <p style="margin: 0 0 0.75rem; font-size: 0.78rem; color: var(--g-text-dim);">VPN-protected WiFi access point manager for Orange Pi Zero 2W</p>
+                        <a href="https://github.com/Tsangares/guardian_web" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.82rem;">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                            GitHub
+                        </a>
                     </div>
                 </details>
             </div>
@@ -1656,27 +1635,43 @@
             });
         }
 
-        // ─── Login Status (pre-auth) ───
-        async function loadLoginStatus() {
+        // ─── Pre-Auth Status Panel ───
+        function statusHtml(ok, text) {
+            const cls = ok ? 'ok' : 'warn';
+            return `<span class="dot ${cls}"></span> ${text}`;
+        }
+
+        async function loadPreAuthStatus() {
             try {
-                const [vpn, uplink, ap] = await Promise.all([
+                const [vpn, uplink, ap, sys] = await Promise.all([
                     api('/vpn/status').catch(() => null),
                     api('/wifi/uplink').catch(() => null),
-                    api('/wifi/ap').catch(() => null)
+                    api('/wifi/ap').catch(() => null),
+                    api('/status').catch(() => null)
                 ]);
 
                 if (vpn) {
-                    document.getElementById('ls-vpn').className = `login-status-dot ${vpn.active ? 'ok' : 'warn'}`;
-                    document.getElementById('ls-vpn-text').textContent = vpn.active ? 'VPN Connected' : 'VPN Down';
+                    const el = document.getElementById('pa-vpn');
+                    el.className = `preauth-value ${vpn.active ? 'ok' : 'warn'}`;
+                    el.innerHTML = statusHtml(vpn.active, vpn.active ? `Connected (${vpn.public_ip || '?'})` : 'Disconnected');
                 }
                 if (uplink) {
-                    document.getElementById('ls-uplink').className = `login-status-dot ${uplink.connected ? 'ok' : 'warn'}`;
-                    document.getElementById('ls-uplink-text').textContent = uplink.connected ? `Uplink: ${uplink.ssid || 'Connected'}` : 'Uplink Down';
+                    const el = document.getElementById('pa-uplink');
+                    el.className = `preauth-value ${uplink.connected ? 'ok' : 'warn'}`;
+                    el.innerHTML = statusHtml(uplink.connected, uplink.connected ? `${uplink.ssid || 'Connected'} (${uplink.signal_dbm || ''})` : 'Disconnected');
                 }
                 if (ap) {
                     const count = ap.client_count || 0;
-                    document.getElementById('ls-ap').className = 'login-status-dot ok';
-                    document.getElementById('ls-ap-text').textContent = `AP: ${count} client${count !== 1 ? 's' : ''}`;
+                    const el = document.getElementById('pa-ap');
+                    el.className = 'preauth-value ok';
+                    el.innerHTML = statusHtml(true, `${ap.ssid || 'Active'} \u2014 ${count} client${count !== 1 ? 's' : ''}`);
+                }
+                if (sys) {
+                    let uptime = sys.uptime.replace('up ', '');
+                    if (uptime.includes(',')) uptime = uptime.split(',')[0];
+                    const el = document.getElementById('pa-sys');
+                    el.className = 'preauth-value ok';
+                    el.innerHTML = statusHtml(true, `Up ${uptime} \u2014 ${sys.cpu_temp_c || '?'}\u00B0C`);
                 }
             } catch (e) {
                 // Silently fail
@@ -1686,7 +1681,7 @@
         // ─── Init ───
         updateThemeButton();
         checkAuth();
-        loadLoginStatus();
+        loadPreAuthStatus();
         showCaptiveBanner();
     </script>
 </body>
